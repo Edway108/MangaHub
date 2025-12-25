@@ -3,28 +3,48 @@ package utils
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var SecretKey = []byte("MQTM")
 
+type Claims struct {
+	UserID   string `json:"user_id"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
+
 func GenerateToken(userID string, username string) (string, error) {
-	//bassically this one is payload
-	claims := jwt.MapClaims{
-		"user_id":  userID,
-		"username": username,
-		"exp":      time.Now().Add(15 * time.Minute).Unix(),
+
+	claims := &Claims{
+		UserID:   userID,
+		Username: username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(
+				time.Now().Add(15 * time.Minute),
+			),
+		},
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	//add up sign
 	return token.SignedString(SecretKey)
 }
-func ParseToken(tokenstring string) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(tokenstring, func(t *jwt.Token) (interface{}, error) {
-		return SecretKey, nil
-	}) //call back to check secretkey
+
+func ParseToken(tokenString string) (*Claims, error) {
+
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return SecretKey, nil
+		},
+	)
+
 	if err != nil || !token.Valid {
 		return nil, err
 	}
-	return token.Claims.(jwt.MapClaims), nil
+
+	return claims, nil
 }

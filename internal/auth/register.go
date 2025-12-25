@@ -36,7 +36,6 @@ func Register(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		//if the password has been successfully hashed
 		_, err = db.Exec(
 			`INSERT INTO user(id , username , password_hash) VALUES (?,?,?)`, uuid.New().String(), req.Username, string(hash),
 		)

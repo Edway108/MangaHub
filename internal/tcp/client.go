@@ -2,25 +2,36 @@ package tcp
 
 import (
 	"encoding/json"
-	"log"
 	"net"
 )
 
-func SendProgressSync(userID string, mangaID string, chapter int) {
-	conn, err := net.Dial("tcp", "localhost:9000")
-	if err != nil {
-		log.Fatal("Fail to connect to the server ", err)
+type Client struct {
+    Conn      net.Conn
+    UserID    string
+    SessionID string
+    SendChan  chan Message
+}
 
-	}
-	defer conn.Close()
+func NewClient(conn net.Conn) *Client {
+    return &Client{
+        Conn:     conn,
+        SendChan: make(chan Message, 16),
+    }
+}
 
-	msg := Message{
-		Type:           "progress_sync",
-		UserID:         userID,
-		MangaID:        mangaID,
-		CurrentChapter: chapter,
-	}
+func (c *Client) Send(msg Message) {
+    select {
+    case c.SendChan <- msg:
+    default:
+        // drop message if client lag/dead
+    }
+}
 
-	data, _ := json.Marshal(msg)
-	conn.Write(data)
+func (c *Client) WriteLoop() {
+    encoder := json.NewEncoder(c.Conn)
+    for msg := range c.SendChan {
+        if err := encoder.Encode(msg); err != nil {
+            return
+        }
+    }
 }

@@ -22,7 +22,7 @@ func TableCreate(db *sql.DB) error {
 		`CREATE TABLE IF NOT EXISTS user_progress(
 		user_id TEXT,
    		manga_id TEXT,
-    	current_chapter INTEGER,
+    	current_chapters INTEGER,
     	status TEXT,
     	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     	PRIMARY KEY (user_id, manga_id)

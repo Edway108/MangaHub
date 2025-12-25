@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package mangahub;
+
+option go_package = "MangaHub/internal/grpc/pb;pb";
+
+/* ===== gRPC Internal Service ===== */
+service MangaService {
+
+  // UC-014
+  rpc GetManga(GetMangaRequest) returns (MangaResponse);
+
+  // UC-015
+  rpc SearchManga(SearchRequest) returns (SearchResponse);
+
+  // UC-016
+  rpc UpdateProgress(ProgressRequest) returns (ProgressResponse);
+
+  //  UC-017: Get User Progress
+  rpc GetUserProgress(UserRequest) returns (UserProgressResponse);
+}
+
+/* ===== Messages ===== */
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message UserProgress {
+  string manga_id = 1;
+  int32 current_chapter = 2;
+  string status = 3;
+}
+
+message UserProgressResponse {
+  repeated UserProgress progress = 1;
+}
+
+/* ===== Existing messages ===== */
+message GetMangaRequest {
+  string manga_id = 1;
+}
+
+message MangaResponse {
+  string id = 1;
+  string title = 2;
+  string author = 3;
+  string description = 4;
+  string total_chapter =5;
+}
+
+message SearchRequest {
+  string keyword = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message SearchResponse {
+  repeated MangaResponse results = 1;
+}
+
+message ProgressRequest {
+  string user_id = 1;
+  string manga_id = 2;
+  int32 chapter = 3;
+}
+
+message ProgressResponse {
+  bool success = 1;
+}

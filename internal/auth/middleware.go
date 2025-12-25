@@ -28,8 +28,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(401, gin.H{"error": "Invalid Token(not right)"})
 			return
 		}
-		c.Set("user_id", claims["user_id"])
-		c.Set("username", claims["username"])
+		c.Set("user_id", claims.UserID)
+		c.Set("username", claims.Username)
 		c.Next()
 
 	}

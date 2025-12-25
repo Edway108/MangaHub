@@ -44,7 +44,8 @@ func Login(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"TOKEN": token,
+			"token":   token,
+			"user_id": userID,
 		})
 
 	}

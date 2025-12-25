@@ -3,16 +3,24 @@ package udp
 import (
 	"encoding/json"
 	"net"
+	"time"
 )
 
-func BroadcastNewChapter(mangaID string, chapter int) {
-	conn, _ := net.Dial("udp", "localhost:9100")
-	defer conn.Close()
-	msg := Message{
-		Type:    "broadcast",
-		MangaID: mangaID,
-		Chapter: chapter,
+func Broadcast(message string) error {
+	addr, _ := net.ResolveUDPAddr("udp", "localhost:9091")
+	conn, err := net.DialUDP("udp", nil, addr)
+	if err != nil {
+		return err
 	}
+	defer conn.Close()
+
+	msg := Notification{
+		Type:      "broadcast",
+		Message:   message,
+		Timestamp: time.Now().Unix(),
+	}
+
 	data, _ := json.Marshal(msg)
-	conn.Write(data)
+	_, err = conn.Write(data)
+	return err
 }

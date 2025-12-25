@@ -1,46 +1,60 @@
 package main
 
 import (
-	"MangaHub/internal/udp"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net"
+	"sync"
+	"time"
+
+	"MangaHub/internal/udp"
 )
 
 func main() {
-
-	addr, _ := net.ResolveUDPAddr("udp", ":9100")
+	addr, _ := net.ResolveUDPAddr("udp", ":9091")
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer conn.Close()
-	fmt.Println("UDP Notification Server running on :9100")
+
+	log.Println("UDP server on :9091")
 
 	clients := make(map[string]*net.UDPAddr)
-	buf := make([]byte, 1024)
+	var mu sync.Mutex
+
+	buf := make([]byte, 2048)
 
 	for {
-		n, ClientAddr, err := conn.ReadFromUDP(buf)
+		n, clientAddr, err := conn.ReadFromUDP(buf)
 		if err != nil {
 			continue
 		}
-		var msg udp.Message
-		json.Unmarshal(buf[:n], &msg)
 
-		if msg.Type == "register" {
-			clients[ClientAddr.String()] = ClientAddr
-			fmt.Println("UDP client registered:", ClientAddr)
+		var msg udp.Notification
+		_ = json.Unmarshal(buf[:n], &msg)
 
-			if msg.Type == "broadcast" {
-				data, _ := json.Marshal(msg)
-				for _, addr := range clients {
-					conn.WriteToUDP(data, addr)
+		switch msg.Type {
 
-				}
+		case "register":
+			mu.Lock()
+			clients[clientAddr.String()] = clientAddr
+			mu.Unlock()
+			log.Println("Client registered:", clientAddr.String())
+
+		case "broadcast":
+			log.Println("Broadcast:", msg.Message)
+
+			mu.Lock()
+			for _, c := range clients {
+				out, _ := json.Marshal(udp.Notification{
+					Type:      "notify",
+					Message:   msg.Message,
+					Timestamp: time.Now().Unix(),
+				})
+				conn.WriteToUDP(out, c)
 			}
-
+			mu.Unlock()
 		}
-
 	}
 }
