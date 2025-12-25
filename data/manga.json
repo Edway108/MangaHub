@@ -1,0 +1,20 @@
+[
+  {
+    "id": "m1",
+    "title": "One Piece",
+    "author": "Oda Eiichiro",
+    "genres": "Action,Adventure",
+    "status": "Ongoing",
+    "total_chapters": 1100,
+    "description": "Pirate adventure"
+  },
+  {
+    "id": "m2",
+    "title": "Naruto",
+    "author": "Kishimoto Masashi",
+    "genres": "Action,Ninja",
+    "status": "Completed",
+    "total_chapters": 700,
+    "description": "Ninja world"
+  }
+]
