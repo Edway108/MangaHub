@@ -22,7 +22,7 @@ func LoadToken() string {
 	}
 
 	return token
-} // root: mangahub sync
+} 
 var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Real-time progress synchronization",

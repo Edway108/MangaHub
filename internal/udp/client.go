@@ -23,7 +23,7 @@ func StartClient() {
 
 	log.Println("UDP client registered")
 
-	// 🔹 LISTEN
+	//  LISTEN
 	buf := make([]byte, 2048)
 	for {
 		n, _, err := conn.ReadFromUDP(buf)

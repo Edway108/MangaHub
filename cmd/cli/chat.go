@@ -47,16 +47,15 @@ func RunChat() {
 	}
 	defer conn.Close()
 
-	fmt.Println("✓ Connected to General Chat")
+	fmt.Println(" Connected to General Chat")
 	fmt.Println("Chat Room: #general")
 	fmt.Println("Type /help for commands or /quit to leave")
-	fmt.Println("─────────────────────────────────────────────")
 
 	go func() {
 		for {
 			var msg WSMessage
 			if err := conn.ReadJSON(&msg); err != nil {
-				fmt.Println("\n✓ Disconnected from chat server")
+				fmt.Println("\n Disconnected from chat server")
 				os.Exit(0)
 			}
 
