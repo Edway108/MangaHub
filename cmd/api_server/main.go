@@ -9,9 +9,11 @@ import (
 	"MangaHub/internal/udp"
 	"MangaHub/pkg/database"
 	"net"
+	"time"
 
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,6 +27,28 @@ func main() {
 func startHTTPServer(hub *tcp.Hub) {
 	// create router
 	r := gin.Default()
+
+	r.Use(func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.Status(204)
+			return
+		}
+		c.Next()
+	})
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+		},
+		AllowMethods: []string{
+			"GET", "POST", "PUT", "DELETE", "OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Origin", "Content-Type", "Authorization",
+		},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	//connect to the db
 	db := database.InitDB("mangahub.db")

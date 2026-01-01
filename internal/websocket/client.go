@@ -19,20 +19,19 @@ func (c *Client) ReadPump(hub *Hub) {
 	}()
 
 	for {
-		_, data, err := c.Conn.ReadMessage()
+		var incoming Message
+		err := c.Conn.ReadJSON(&incoming)
 		if err != nil {
 			return
 		}
 
-		msg := Message{
-			Type:    "message",
-			Content: string(data),
-			From:    c.Username,
-			Room:    c.Room,
-			Client:  c,
-		}
+		incoming.Type = "message"
+		incoming.User = c.Username
+		incoming.From = c.Username
+		incoming.Room = c.Room
+		incoming.Client = c
 
-		hub.Broadcast <- msg
+		hub.Broadcast <- incoming
 	}
 }
 
